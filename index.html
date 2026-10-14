@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P&amp;C Quick Calculator — JEE Mathematics</title>
+<style>
+:root{--bg:#0b1324;--panel:#111b31;--card:#0d1629;--line:#27385c;--text:#eaf0ff;--muted:#9fb1d1;--acc:#22d3ee;--accd:#04222b;--key:#1a2a49;--err:#ff7b7b;--ok:#6ee7a8;--bar:68px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:18px/1.45 system-ui,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.bar{height:var(--bar);flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+.bar h1{margin:0;font-size:1.35em}
+.bar .sub{color:var(--muted);margin-left:12px;font-size:.8em;font-weight:400}
+.bar .count{color:var(--muted);font-size:.85em;margin-right:12px}
+.calcs{flex:1;min-height:0;overflow-y:auto;padding:16px 20px 20px;display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,700px),1fr));grid-auto-rows:calc(100vh - var(--bar) - 36px);grid-auto-rows:calc(100dvh - var(--bar) - 36px)}
+.calc{container-type:inline-size;display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border:2px solid var(--line);border-radius:12px;overflow:hidden}
+.calc.active{border-color:var(--acc)}
+.chead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 10px 6px 18px;border-bottom:1px solid var(--line);background:#0e1830}
+.ctitle{margin:0;font-size:1em;color:var(--acc)}
+.cbody{flex:1;min-height:0;display:grid;grid-template-columns:1fr;overflow-y:auto}
+.panel{padding:16px 18px;min-width:0;min-height:0}
+@container (min-width:820px){
+  .cbody{grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
+  .panel{overflow-y:auto}
+  .panel.left{border-right:1px solid var(--line)}
+}
+.sub2{color:var(--muted);margin:0 0 10px;font-size:.9em}
+.expr{width:100%;font:600 1.5em ui-monospace,Consolas,"Courier New",monospace;padding:10px 12px;background:var(--card);color:var(--text);border:2px solid var(--line);border-radius:8px}
+.expr:focus{outline:none;border-color:var(--acc)}
+.msg{min-height:1.5em;margin:8px 0;color:var(--err);font-weight:600}
+.hint{color:var(--muted);font-size:.8em;margin:0 0 12px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.key{min-height:58px;font:600 1.25em system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--key);border:1px solid var(--line);border-radius:8px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;padding:4px}
+.key:active{background:#27406e}
+.key:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.key.fn{color:var(--acc)}
+.key.wide{grid-column:span 2}
+.key.go{background:var(--acc);color:var(--accd);border-color:var(--acc);font-size:1.1em}
+.key.clr{color:var(--err);font-size:1.1em}
+.key.go:active{background:#67e8f9}
+.empty{color:var(--muted);padding:12px 0}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.badge{border:1px solid var(--acc);color:var(--acc);border-radius:20px;padding:2px 12px;font-weight:600;font-size:.9em}
+.badge.b2{border-color:var(--line);color:var(--muted)}
+.ans{font:700 40px/1.1 ui-monospace,Consolas,"Courier New",monospace;font-size:clamp(34px,5.5cqw,84px);word-break:break-all;overflow-wrap:anywhere;margin:10px 0}
+.ans.long{font-size:22px;line-height:1.4}
+.small{color:var(--muted);font-size:.9em;word-break:break-all}
+.btn{min-height:50px;padding:6px 18px;font:600 1em system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--key);border:1px solid var(--acc);border-radius:8px;cursor:pointer;touch-action:manipulation}
+.btn:active{background:#27406e}
+.btn.add{background:var(--acc);color:var(--accd);font-size:1.05em;min-height:48px}
+.btn.add:active{background:#67e8f9}
+.btn.close{min-height:44px;min-width:44px;padding:0 12px;border-color:var(--line);color:var(--err);font-size:1.1em}
+.single .btn.close{display:none}
+h2{font-size:1.05em;margin:20px 0 8px;color:var(--muted);font-weight:600}
+.grp{margin:16px 0 6px;font-weight:700;color:var(--acc)}
+.grp.hit{color:var(--ok)}
+.card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:6px;padding:10px 14px;margin:8px 0}
+.card.hit{border-left-color:var(--ok)}
+.card h3{margin:0 0 4px;font-size:1em}
+.form{font:1.05em/1.5 ui-monospace,Consolas,"Courier New",monospace;color:#c4f5fc;white-space:pre-wrap;overflow-wrap:anywhere}
+.card p{margin:4px 0 0;color:var(--muted);font-size:.92em}
+[hidden]{display:none!important}
+@media (max-width:959px){.app{display:block;height:auto}.bar{padding:0 12px}.bar .sub,.bar .count{display:none}.calcs{display:block;overflow:visible;padding:12px}.calc{margin-bottom:14px}.cbody{overflow:visible}body{font-size:17px}.expr{font-size:1.25em}.key{min-height:56px}}
+@media (min-width:1600px){body{font-size:22px}.key{min-height:68px}.pad{gap:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <h1>P&amp;C Quick Calculator<span class="sub">Permutations, combinations and factorials for JEE Mathematics</span></h1>
+    <div class="row toolbar">
+      <span class="count" id="count"></span>
+      <button class="btn tool" id="themeToggle" type="button" aria-pressed="false">☀ Light</button>
+      <button class="btn tool" id="smartToggle" type="button" aria-pressed="false">▣ Smartboard</button>
+      <button class="btn tool" id="sizeDown" type="button" aria-label="Decrease interface size">A−</button>
+      <button class="btn tool" id="sizeUp" type="button" aria-label="Increase interface size">A+</button>
+      <button class="btn tool" id="fullscreenToggle" type="button">⛶ Fullscreen</button>
+      <button class="btn add" id="add" type="button">＋ Add Calculator</button>
+    </div>
+  </header>
+  <main class="calcs single" id="calcs" aria-label="Calculators"></main>
+</div>
+
+<footer class="site-footer">
+  <div>© 2026 Barath M · All rights reserved · Chennai, Tamil Nadu, India</div>
+  <div>Built with HTML · CSS · JS · Deployed on Cloudflare Pages</div>
+</footer>
+
+<style>
+.site-footer{padding:12px 16px;text-align:center;color:var(--muted);font-size:.78em;line-height:1.6;border-top:1px solid var(--line);background:var(--panel)}
+@media (max-width:959px){.site-footer{margin-top:0}}
+</style>
+
+<template id="tpl">
+  <section class="calc" aria-label="Calculator">
+    <div class="chead"><h2 class="ctitle" style="margin:0">Calculator</h2><button class="btn close" type="button" aria-label="Remove this calculator">✕</button></div>
+    <div class="cbody">
+      <div class="panel left">
+        <input class="expr" type="text" inputmode="none" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Expression">
+        <div class="msg" role="alert"></div>
+        <p class="hint">Type or tap: 8C3, 7P2, 5H3, nCr(8,3), n!, + − × ÷ ^ and ( ). n up to 2000; results up to about 18,000 digits.</p>
+        <div class="pad"></div>
+      </div>
+      <div class="panel right" aria-live="polite">
+        <div class="empty">No result yet. Enter an expression and press Calculate.</div>
+        <div class="out" hidden>
+          <div class="small echo"></div>
+          <div class="ans"></div>
+          <div class="row"><span class="badge">Exact</span><span class="badge b2 kind"></span><span class="small extra"></span></div>
+          <div class="row" style="margin-top:14px">
+            <button class="btn copy" type="button">Copy Answer</button>
+            <button class="btn use" type="button">Use in Input</button>
+            <span class="small note"></span>
+          </div>
+          <h2>Alternative forms and identities</h2>
+          <div class="ids"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script id="engine">
+// ===== Engine: tokenizer, parser, exact evaluator, identity builder (no DOM) =====
+const LIM = { N: 2000, BITS: 60000, LEN: 400, EXP: 1000000 };
+class CalcError extends Error {}
+const fail = m => { throw new CalcError(m); };
+const gcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { const t = a % b; a = b; b = t; } return a; };
+const bits = x => { x = x < 0n ? -x : x; return x === 0n ? 0 : x.toString(16).length * 4; };
+function Q(n, d = 1n) {
+  if (d === 0n) fail('Division by zero is undefined.');
+  if (d < 0n) { n = -n; d = -d; }
+  if (d !== 1n) { const g = gcd(n, d); if (g > 1n) { n /= g; d /= g; } }
+  if (bits(n) > LIM.BITS || bits(d) > LIM.BITS) fail('The result is too large for this calculator (limit about 18,000 digits).');
+  return { n, d };
+}
+const fmtQ = x => x.d === 1n ? x.n.toString() : x.n + '/' + x.d;
+const short = b => { const s = b.toString(); return s.length > 30 ? s.slice(0, 12) + '…' + s.slice(-6) + ' (' + s.length + ' digits)' : s; };
+
+function tokenize(src) {
+  if (src.length > LIM.LEN) fail('Expression is too long (limit ' + LIM.LEN + ' characters).');
+  const s = src.replace(/×/g, '*').replace(/÷/g, '/').replace(/[−–]/g, '-');
+  const t = []; let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (c >= '0' && c <= '9') { let j = i; while (j < s.length && s[j] >= '0' && s[j] <= '9') j++; t.push({ k: 'num', v: BigInt(s.slice(i, j)), p: i }); i = j; continue; }
+    if (/[A-Za-z]/.test(c)) {
+      let j = i; while (j < s.length && /[A-Za-z]/.test(s[j])) j++;
+      const w = s.slice(i, j).toLowerCase();
+      const f = (w === 'npr' || w === 'p') ? 'P' : (w === 'ncr' || w === 'c') ? 'C' : (w === 'nhr' || w === 'h') ? 'H' : null;
+      if (!f) fail('Unknown name "' + s.slice(i, j) + '" at position ' + (i + 1) + '. Use nPr, nCr, nHr, P, C or H.');
+      t.push({ k: 'fn', v: f, p: i }); i = j; continue;
+    }
+    if ('+-*/^!(),'.includes(c)) { t.push({ k: c, p: i }); i++; continue; }
+    if (c === '.') fail('Decimal points are not supported. Use whole numbers or fractions such as 1/3.');
+    fail('Unsupported character "' + c + '" at position ' + (i + 1) + '.');
+  }
+  return t;
+}
+
+function parse(tk) {
+  let i = 0;
+  const show = t => t.k === 'num' ? String(t.v) : t.k === 'fn' ? 'nPr/nCr/nHr' : t.k;
+  const eat = k => (tk[i] && tk[i].k === k) ? tk[i++] : null;
+  const need = (k, w) => { const t = eat(k); if (!t) fail('Expected ' + w + (tk[i] ? ' at position ' + (tk[i].p + 1) + ' but found "' + show(tk[i]) + '"' : ' at the end of the expression') + '.'); return t; };
+  function expr() { let l = term(); for (;;) { const t = eat('+') || eat('-'); if (!t) return l; l = { t: 'bin', op: t.k, l, r: term() }; } }
+  function term() { let l = unary(); for (;;) { const t = eat('*') || eat('/'); if (!t) return l; l = { t: 'bin', op: t.k, l, r: unary() }; } }
+  function unary() { if (eat('-')) return { t: 'neg', a: unary() }; if (eat('+')) return unary(); return power(); }
+  function power() { const b = postfix(); if (eat('^')) return { t: 'bin', op: '^', l: b, r: unary() }; return b; }
+  function postfix() {
+    let a = primary();
+    for (;;) {
+      if (eat('!')) a = { t: 'fact', a };
+      else if (tk[i] && tk[i].k === 'fn') { const f = tk[i++].v; a = { t: 'fn', f, n: a, r: primary() }; }   // infix: 8C3, 7P2, 5H3
+      else break;
+    }
+    return a;
+  }
+  function primary() {
+    const t = tk[i];
+    if (!t) fail('The expression ended unexpectedly.');
+    if (t.k === 'num') { i++; return { t: 'num', v: t.v }; }
+    if (t.k === 'fn') { i++; need('(', '"("'); const n = expr(); need(',', '","'); const r = expr(); need(')', '")"'); return { t: 'fn', f: t.v, n, r }; }
+    if (t.k === '(') { i++; const e = expr(); need(')', '")"'); return e; }
+    fail('Unexpected "' + show(t) + '" at position ' + (t.p + 1) + '.');
+  }
+  if (!tk.length) fail('Enter an expression.');
+  const e = expr();
+  if (i < tk.length) fail('Unexpected "' + show(tk[i]) + '" at position ' + (tk[i].p + 1) + '.');
+  return e;
+}
+
+const asInt = (x, what) => { if (x.d !== 1n) fail(what + ' must be an integer (got ' + fmtQ(x) + ').'); return x.n; };
+function fact(n) { if (n > BigInt(LIM.N)) fail('n is too large: factorial is limited to n ≤ ' + LIM.N + '.'); let r = 1n; for (let k = 2n; k <= n; k++) r *= k; return r; }
+function checkNR(name, n, r) {
+  if (n < 0n) fail(name + ': n must be a non-negative integer (got ' + n + ').');
+  if (r < 0n) fail(name + ': r must be a non-negative integer (got ' + r + ').');
+  if (r > n) fail(name + ': r cannot be greater than n (got r = ' + r + ', n = ' + n + ').');
+  if (n > BigInt(LIM.N)) fail(name + ': n is too large (limit n ≤ ' + LIM.N + ').');
+}
+function perm(n, r) { let x = 1n; for (let k = n - r + 1n; k <= n; k++) x *= k; return x; }
+function comb(n, r) { const k = r < n - r ? r : n - r; let x = 1n; for (let i = 1n; i <= k; i++) x = x * (n - k + i) / i; return x; }
+
+function evalNode(a) {
+  switch (a.t) {
+    case 'num': return Q(a.v);
+    case 'neg': { const x = evalNode(a.a); return Q(-x.n, x.d); }
+    case 'fact': { const n = asInt(evalNode(a.a), 'Factorial argument'); if (n < 0n) fail('Factorial is undefined for negative numbers (got ' + n + '!).'); return Q(fact(n)); }
+    case 'fn': {
+      const name = a.f === 'P' ? 'nPr' : a.f === 'C' ? 'nCr' : 'nHr';
+      const n = asInt(evalNode(a.n), name + ': n'), r = asInt(evalNode(a.r), name + ': r');
+      if (a.f === 'H') {
+        if (n < 0n || r < 0n) fail(name + ': n and r must be non-negative integers.');
+        if (n + r > BigInt(LIM.N) + 1n) fail(name + ': n + r is too large (limit n + r ≤ ' + (LIM.N + 1) + ').');
+        return Q(n === 0n ? (r === 0n ? 1n : 0n) : comb(n + r - 1n, r));
+      }
+      checkNR(name, n, r);
+      return Q(a.f === 'P' ? perm(n, r) : comb(n, r));
+    }
+    case 'bin': {
+      const x = evalNode(a.l), y = evalNode(a.r);
+      if (a.op === '+') return Q(x.n * y.d + y.n * x.d, x.d * y.d);
+      if (a.op === '-') return Q(x.n * y.d - y.n * x.d, x.d * y.d);
+      if (a.op === '*') return Q(x.n * y.n, x.d * y.d);
+      if (a.op === '/') { if (y.n === 0n) fail('Division by zero is undefined.'); return Q(x.n * y.d, x.d * y.n); }
+      const e = asInt(y, 'Exponent');
+      if (e > BigInt(LIM.EXP) || e < -BigInt(LIM.EXP)) fail('Exponent is too large.');
+      const ae = e < 0n ? -e : e;
+      if (x.n === 0n) { if (e === 0n) fail('0^0 is undefined.'); if (e < 0n) fail('Division by zero is undefined (0 to a negative power).'); return Q(0n); }
+      if (Math.max(bits(x.n), bits(x.d)) * Number(ae) > LIM.BITS) fail('The result is too large for this calculator (limit about 18,000 digits).');
+      const pn = x.n ** ae, pd = x.d ** ae;
+      return e >= 0n ? Q(pn, pd) : Q(pd, pn);
+    }
+  }
+}
+
+function calc(src) { const ast = parse(tokenize(src)); return { ast, val: evalNode(ast) }; }
+
+// ----- Identity engine: forward (output) and reverse (input) identities -----
+const card = (name, form, why) => ({ name, form, why });
+const fr = (p, q) => fmtQ(Q(p, q));
+function expand(n, r) { const p = []; for (let i = 0n; i < r; i++) p.push((n - i).toString()); return p.join(' × '); }
+const args = a => [evalNode(a.n).n, evalNode(a.r).n];
+// constant nCr or nHr node -> equivalent {n, r} of a combination, else null
+function cNode(a) {
+  if (!a || a.t !== 'fn' || a.f === 'P') return null;
+  const [n, r] = args(a);
+  if (a.f === 'C') return (n >= 0n && r >= 0n && r <= n) ? { n, r } : null;
+  return (n >= 1n && r >= 0n) ? { n: n + r - 1n, r } : null;
+}
+// are lower indices a and b of nCa, nCb adjacent (differ by 1), allowing symmetry nCr = nC(n-r)?
+function adj(n, a, b) {
+  for (const [x, sx] of [[a, 0], [n - a, 1]]) for (const [y, sy] of [[b, 0], [n - b, 1]]) {
+    if (x === y + 1n) return { hi: x, lo: y, sym: !!(sx || sy), aHi: true };
+    if (y === x + 1n) return { hi: y, lo: x, sym: !!(sx || sy), aHi: false };
+  }
+  return null;
+}
+const symNote = ' (after using nCr = nC(n − r) to line the indices up)';
+function sigma(n, from) {
+  const N = n + '', f = from;
+  if (n - f <= 4n) { const p = []; for (let r = f; r <= n; r++) p.push(N + 'C' + r); return p.join(' + '); }
+  return N + 'C' + f + ' + ' + N + 'C' + (f + 1n) + ' + … + ' + N + 'C' + N;
+}
+
+function permCards(n, r) {
+  const N = n + '', R = r + '', M = (n - r) + '', v = perm(n, r), c = comb(n, r), out = [];
+  out.push(card('Permutation in terms of combination', N + 'P' + R + ' = ' + R + '! × ' + N + 'C' + R + '\n= ' + short(fact(r)) + ' × ' + short(c) + ' = ' + short(v),
+    'Choose the r objects first (nCr ways), then arrange them in r! ways. That counts every ordered selection.'));
+  out.push(card('Permutation factorial form', N + 'P' + R + ' = ' + N + '! / ' + M + '!' + (r >= 1n && r <= 6n ? '\n= ' + expand(n, r) + ' = ' + v : '\n= ' + short(v)),
+    'Arranging all n objects gives n!. The (n − r)! orders of the unchosen objects are not counted, so divide them out.'));
+  if (r >= 1n) out.push(card('Permutation recurrence', N + 'P' + R + ' = ' + N + ' × ' + (n - 1n) + 'P' + (r - 1n) + ' = ' + short(n * perm(n - 1n, r - 1n)),
+    'Fill the first position in n ways, then arrange r − 1 of the remaining n − 1 objects.'));
+  if (r === 0n) out.push(card('Special case', N + 'P0 = 1', 'There is exactly one way to arrange nothing.'));
+  else if (r === 1n) out.push(card('Special case', N + 'P1 = ' + N, 'One position can be filled by any of the n objects.'));
+  else if (r === n) out.push(card('Special case', N + 'P' + N + ' = ' + N + '!', 'Arranging all n objects: nPn = n!.'));
+  return out;
+}
+
+function combCards(n, r) {
+  const N = n + '', R = r + '', M = (n - r) + '', v = comb(n, r), out = [];
+  const half = r <= 6n ? '\n= (' + (r === 0n ? '1' : expand(n, r)) + ') / (' + (r === 0n ? '1' : expand(r, r)) + ') = ' + v : '\n= ' + short(v);
+  out.push(card('Combination factorial form', N + 'C' + R + ' = ' + N + '! / (' + R + '! × ' + M + '!)' + half,
+    'Start from nPr = n!/(n − r)! and divide by r! because the order of the chosen objects does not matter.'));
+  // 1. Symmetry
+  out.push(card('Symmetry property', N + 'C' + R + ' = ' + N + 'C' + M + ' = ' + short(v),
+    r === n - r ? 'Here r = n − r, so both sides are the same term.' : 'Choosing r objects to take is the same as choosing the n − r objects to leave out.'));
+  // 2. Pascal's rule (split form: nCr = (n-1)Cr + (n-1)C(r-1)), and its combined form
+  if (r > 0n && r < n) {
+    const a = comb(n - 1n, r), b = comb(n - 1n, r - 1n);
+    out.push(card("Pascal's rule (split)", N + 'C' + R + ' = ' + (n - 1n) + 'C' + R + ' + ' + (n - 1n) + 'C' + (r - 1n) + '\n= ' + short(a) + ' + ' + short(b) + ' = ' + short(a + b),
+      'Fix one object. Either it is left out (choose all r from the other n − 1) or it is chosen (choose the other r − 1 from n − 1).'));
+  }
+  if (r < n) {
+    const a = comb(n, r), b = comb(n, r + 1n);
+    out.push(card("Pascal's rule (combined)", N + 'C' + R + ' + ' + N + 'C' + (r + 1n) + ' = ' + (n + 1n) + 'C' + (r + 1n) + '\n= ' + short(a) + ' + ' + short(b) + ' = ' + short(a + b),
+      'The rule nCr + nC(r−1) = (n+1)Cr read forwards, with this term as the lower neighbour.'));
+  }
+  // 3. Ratio identity
+  if (r >= 1n) out.push(card('Ratio identity', N + 'C' + R + ' ÷ ' + N + 'C' + (r - 1n) + ' = (' + N + ' − ' + R + ' + 1)/' + R + ' = ' + fr(n - r + 1n, r) +
+    '\n⇒ ' + N + 'C' + R + ' = ' + fr(n - r + 1n, r) + ' × ' + N + 'C' + (r - 1n),
+    'Dividing r!(n−r)! into (r−1)!(n−r+1)! leaves (n − r + 1)/r.'));
+  if (r < n) out.push(card('Ratio identity (next term)', N + 'C' + (r + 1n) + ' ÷ ' + N + 'C' + R + ' = (' + N + ' − ' + R + ')/' + (r + 1n) + ' = ' + fr(n - r, r + 1n) +
+    '\n⇒ ' + N + 'C' + (r + 1n) + ' = ' + fr(n - r, r + 1n) + ' × ' + N + 'C' + R,
+    'The same ratio rule with r replaced by r + 1.'));
+  // 4. Absorption identity
+  if (r >= 1n) out.push(card('Absorption identity', R + ' × ' + N + 'C' + R + ' = ' + N + ' × ' + (n - 1n) + 'C' + (r - 1n) + ' = ' + short(r * v) +
+    '\n⇒ ' + N + 'C' + R + ' = (' + N + '/' + R + ') × ' + (n - 1n) + 'C' + (r - 1n),
+    'Count (committee, chairperson) pairs: choose r members then one of them as chair, or pick the chair from n first and the other r − 1 members from n − 1.'));
+  // 5. Selection of at least one
+  if (n >= 1n) out.push(card('Selection of at least one', sigma(n, 1n) + ' = 2^' + N + ' − 1 = ' + short((1n << n) - 1n) +
+    '\n(' + N + 'C' + R + ' is the part of this total that selects exactly ' + R + ' items)',
+    'Each of the n distinct items is taken or left (2^n subsets); remove the empty selection to get at least one.'));
+  // 6. With repetition
+  const m = n - r + 1n;
+  out.push(card('With repetition', m + ' distinct items, select ' + R + ' with repetition:\n' + m + 'H' + R + ' = (' + m + ' + ' + R + ' − 1)C' + R + ' = ' + N + 'C' + R + ' = ' + short(v),
+    'Selecting r items with repetition from n distinct items gives (n + r − 1)Cr. Taking n = n − r + 1 here gives exactly nCr.'));
+  if (r === 0n) out.push(card('Special case', N + 'C0 = 1', 'There is one way to choose nothing.'));
+  else if (r === n) out.push(card('Special case', N + 'C' + N + ' = 1', 'There is one way to choose everything.'));
+  else if (r === 1n) out.push(card('Special case', N + 'C1 = ' + N, 'Choosing one object: n ways.'));
+  return out;
+}
+
+function repCards(n, r) {
+  const N = n + '', R = r + '';
+  if (n === 0n) return [card('Special case', N + 'H' + R + ' = ' + (r === 0n ? '1' : '0'), 'With no distinct items you can select nothing in one way, and nothing else.')];
+  const t = n + r - 1n, v = comb(t, r);
+  return [card('With repetition (stars and bars)', N + 'H' + R + ' = (' + N + ' + ' + R + ' − 1)C' + R + ' = ' + t + 'C' + R + ' = ' + t + 'C' + (n - 1n) + '\n= ' + short(v),
+    'Selecting r items from n distinct kinds with unlimited repetition: arrange r stars and n − 1 bars in a row, giving (n + r − 1)Cr.')];
+}
+
+function walk(a, f) {
+  f(a);
+  if (a.t === 'bin') { walk(a.l, f); walk(a.r, f); }
+  else if (a.t === 'neg' || a.t === 'fact') walk(a.a, f);
+  else if (a.t === 'fn') { walk(a.n, f); walk(a.r, f); }
+}
+
+// ----- Reverse identities: recognise the pattern typed by the user and show what it simplifies to -----
+function reverseCards(ast) {
+  const out = [], done = new Set(), chainSeen = new Set(), handled = new Set();
+  const push = c => { if (c && !done.has(c.form)) { done.add(c.form); out.push(c); } };
+  const isVal = (x, k) => { try { const v = evalNode(x); return v.d === 1n && v.n === k; } catch (_) { return false; } };
+  const pow2 = x => {            // returns n for a node 2^n (n integer 1..2000) else null
+    if (!x || x.t !== 'bin' || x.op !== '^') return null;
+    const b = evalNode(x.l), e = evalNode(x.r);
+    return (b.d === 1n && b.n === 2n && e.d === 1n && e.n >= 1n && e.n <= 2000n) ? e.n : null;
+  };
+
+  function pascal(n, a, b) {
+    const m = adj(n, a, b); if (!m) return null;
+    const hi = m.hi, ca = comb(n, a), cb = comb(n, b);
+    const alt = (n + 1n) - hi;
+    return card("Pascal's rule (input combined into one term)",
+      n + 'C' + a + ' + ' + n + 'C' + b + ' = ' + (n + 1n) + 'C' + hi + (alt !== hi ? ' = ' + (n + 1n) + 'C' + alt : '') +
+      '\n= ' + short(ca) + ' + ' + short(cb) + ' = ' + short(ca + cb),
+      'nCr + nC(r−1) = (n+1)Cr' + (m.sym ? symNote : '') + '. Here r = ' + hi + ' and n = ' + n + '.');
+  }
+  function ratio(a, b) {
+    const p = cNode(a.l), q = cNode(a.r);
+    if (!p || !q || p.n !== q.n) return null;
+    const n = p.n, m = adj(n, p.r, q.r); if (!m) return null;
+    const N = n + '', hi = m.hi, top = n - hi + 1n;
+    const body = m.aHi
+      ? N + 'C' + p.r + ' ÷ ' + N + 'C' + q.r + ' = (' + N + ' − ' + hi + ' + 1)/' + hi + ' = ' + top + '/' + hi + ' = ' + fr(top, hi)
+      : N + 'C' + p.r + ' ÷ ' + N + 'C' + q.r + ' = ' + hi + '/(' + N + ' − ' + hi + ' + 1) = ' + hi + '/' + top + ' = ' + fr(hi, top);
+    return card('Ratio identity (input quotient)', body,
+      'nCr ÷ nC(r−1) = (n − r + 1)/r' + (m.aHi ? '' : ' (inverted, since the numerator is the lower term)') + (m.sym ? symNote : '') + '.');
+  }
+  function absorb(k, c) {
+    const { n, r } = c, N = n + '', v = comb(n, r), K = k + '', res = [];
+    const lhs = K + ' × ' + N + 'C' + r;
+    if (k === r && r >= 1n)
+      res.push(card('Absorption identity (input simplified)', lhs + ' = ' + N + ' × ' + (n - 1n) + 'C' + (r - 1n) + '\n= ' + short(k * v),
+        'r × nCr = n × (n−1)C(r−1). The multiplier equals r = ' + r + '.'));
+    if (k === n - r && k >= 1n && k !== r)
+      res.push(card('Absorption identity (via symmetry)', lhs + ' = ' + N + ' × ' + (n - 1n) + 'C' + (n - r - 1n) + '\n= ' + short(k * v),
+        'The multiplier equals n − r = ' + k + ', so use nCr = nC(n−r) and then r × nCr = n × (n−1)C(r−1).'));
+    if (k === n + 1n) {
+      res.push(card('Absorption identity (reverse)', lhs + ' = ' + (r + 1n) + ' × ' + (n + 1n) + 'C' + (r + 1n) + '\n= ' + short(k * v),
+        'n × (n−1)C(r−1) = r × nCr, with n → ' + k + ' and r → ' + (r + 1n) + '. The multiplier is one more than the top number.'));
+      if (n - r + 1n !== r + 1n) res.push(card('Absorption identity (reverse, via symmetry)', lhs + ' = ' + (n - r + 1n) + ' × ' + (n + 1n) + 'C' + (n - r + 1n) + '\n= ' + short(k * v),
+        'Same rule applied to nC(n−r), which equals nCr.'));
+    }
+    return res;
+  }
+  function atLeastOne(n, withOne, note) {
+    const N = n + '';
+    if (withOne) return card('Selection of at least one', '2^' + N + ' − 1 = ' + sigma(n, 1n) + '\n= ' + short((1n << n) - 1n),
+      'Total ways to select one or more of n distinct items is 2^n − 1' + (note || '') + '.');
+    return card('Total selections (including none)', '2^' + N + ' = ' + sigma(n, 0n) + ' = ' + short(1n << n) + '\n2^' + N + ' − 1 = ' + sigma(n, 1n) + ' (at least one)',
+      'Each of the n items is either taken or left, so there are 2^n subsets; removing the empty one gives 2^n − 1.');
+  }
+
+  walk(ast, a => {
+    if (a.t === 'bin' && (a.op === '+' || a.op === '-') && !chainSeen.has(a)) {
+      const terms = [];
+      const fl = (x, s) => {
+        if (x.t === 'bin' && (x.op === '+' || x.op === '-')) { chainSeen.add(x); fl(x.l, s); fl(x.r, x.op === '+' ? s : -s); }
+        else terms.push({ s, x });
+      };
+      fl(a, 1);
+      const plus = terms.filter(t => t.s === 1);
+      const cs = plus.map(t => ({ c: cNode(t.x) })).filter(o => o.c).map(o => o.c);
+      // sums covering all of nC1..nCn (or nC0..nCn)
+      const byN = new Map();
+      cs.forEach(c => { const k = c.n.toString(); if (!byN.has(k)) byN.set(k, { n: c.n, rs: [] }); byN.get(k).rs.push(c.r); });
+      let fullRow = false;
+      byN.forEach(g => {
+        const set = new Set(g.rs.map(String)); if (set.size !== g.rs.length) return;
+        const has0 = set.has('0'); const need = Number(g.n) + (has0 ? 1 : 0);
+        if (g.n < 1n || g.rs.length !== need) return;
+        let ok = true; for (let r = has0 ? 0n : 1n; r <= g.n; r++) if (!set.has(r.toString())) ok = false;
+        if (ok) fullRow = true;
+        if (ok) push(card(has0 ? 'Sum of all selections' : 'Selection of at least one (input sum)',
+          sigma(g.n, has0 ? 0n : 1n) + ' = 2^' + g.n + (has0 ? '' : ' − 1') + ' = ' + short((1n << g.n) - (has0 ? 0n : 1n)),
+          has0 ? 'Σ nCr over r = 0..n counts every subset of n items, which is 2^n.' : 'Selecting one or more of n distinct items: 2^n − 1 ways.'));
+      });
+      // Pascal's rule on pairs of terms with the same n (skipped when the whole chain is a full row sum)
+      if (!fullRow) {
+        const used = new Set();
+        for (let i = 0; i < cs.length; i++) for (let j = i + 1; j < cs.length; j++) {
+          if (used.has(i) || used.has(j) || cs[i].n !== cs[j].n) continue;
+          const c = pascal(cs[i].n, cs[i].r, cs[j].r);
+          if (c) { push(c); used.add(i); used.add(j); }
+        }
+      }
+      // 2^n - 1 written as powers
+      const minusOnes = terms.filter(t => t.s === -1 && isVal(t.x, 1n));
+      plus.forEach(t => {
+        const n = pow2(t.x); if (n === null) return;
+        handled.add(t.x);
+        if (minusOnes.length) { minusOnes.pop(); push(atLeastOne(n, true)); } else push(atLeastOne(n, false));
+      });
+    }
+    if (a.t === 'bin' && a.op === '^' && !handled.has(a)) { const n = pow2(a); if (n !== null) { handled.add(a); push(atLeastOne(n, false)); } }
+    if (a.t === 'bin' && a.op === '/') push(ratio(a));
+    if (a.t === 'bin' && a.op === '*') {
+      [[a.l, a.r], [a.r, a.l]].forEach(([x, y]) => {
+        if (x.t !== 'num' || y.t !== 'fn' || y.f !== 'C') return;
+        const c = cNode(y); if (!c) return;
+        absorb(x.v, c).forEach(push);
+      });
+    }
+  });
+  return out.slice(0, 8);
+}
+
+function buildIdentities(ast) {
+  const groups = [], seen = new Set(), calls = [], facts = [], ratios = [];
+  const rev = reverseCards(ast);
+  if (rev.length) groups.push({ title: 'Your input matches these identities', cards: rev });
+  walk(ast, a => {
+    if (a.t === 'fn') calls.push(a);
+    if (a.t === 'fact') facts.push(a);
+    if (a.t === 'bin' && a.op === '/' && a.l.t === 'fn' && a.r.t === 'fn' && a.l.f !== a.r.f && a.l.f !== 'H' && a.r.f !== 'H') ratios.push(a);
+  });
+  for (const b of ratios) {
+    const [n1, r1] = args(b.l), [n2, r2] = args(b.r);
+    if (n1 !== n2 || r1 !== r2) continue;
+    const key = 'ratio' + b.l.f + n1 + ',' + r1; if (seen.has(key)) continue; seen.add(key);
+    const N = n1 + '', R = r1 + '', f = fact(r1);
+    groups.push({ title: 'Matching nPr and nCr in a quotient', cards: b.l.f === 'P'
+      ? [card('nPr ÷ nCr = r!', N + 'P' + R + ' ÷ ' + N + 'C' + R + ' = ' + R + '! = ' + short(f), 'Since nPr = r! × nCr, dividing by nCr leaves r!. This works only because n and r are the same in numerator and denominator.')]
+      : [card('nCr ÷ nPr = 1 / r!', N + 'C' + R + ' ÷ ' + N + 'P' + R + ' = 1 / ' + R + '! = 1/' + short(f), 'Since nPr = r! × nCr, the quotient nCr ÷ nPr is 1/r!. This works only because n and r match.')] });
+  }
+  let count = 0;
+  for (const a of calls) {
+    const [n, r] = args(a), key = a.f + n + ',' + r;
+    if (seen.has(key)) continue; seen.add(key);
+    if (count++ >= 3) { groups.push({ title: 'Identities are shown for the first 3 distinct nPr / nCr / nHr terms only.', cards: [] }); break; }
+    if (a.f === 'H') {
+      groups.push({ title: 'Identities for ' + n + 'H' + r, cards: repCards(n, r) });
+      if (n >= 1n) groups.push({ title: 'The same count as ' + (n + r - 1n) + 'C' + r, cards: combCards(n + r - 1n, r) });
+    } else groups.push({ title: 'Identities for ' + n + a.f + r, cards: a.f === 'P' ? permCards(n, r) : combCards(n, r) });
+  }
+  const fs = new Set();
+  for (const a of facts) {
+    const k = evalNode(a.a).n; if (fs.has(k)) continue; fs.add(k); if (fs.size > 2) break;
+    const K = k + '';
+    groups.push({ title: 'Identity for ' + K + '!', cards: [k === 0n ? card('Zero factorial', '0! = 1', 'By convention (an empty product); there is exactly one way to arrange no objects.')
+      : card('Factorial recurrence', K + '! = ' + K + ' × ' + (k - 1n) + '!' + (k <= 20n ? ' = ' + fact(k) : '\n= ' + short(fact(k))), 'n! = n × (n − 1)!, with 0! = 1.')] });
+  }
+  return groups;
+}
+</script>
+
+<script id="ui">
+// ===== UI: any number of independent calculators =====
+(function () {
+  const calcs = document.getElementById('calcs'), tpl = document.getElementById('tpl'), countEl = document.getElementById('count');
+  const html = document.documentElement;
+  let uiScale = 1;
+  const themeBtn = document.getElementById('themeToggle');
+  themeBtn.addEventListener('click', () => {
+    const light = html.dataset.theme !== 'light';
+    html.dataset.theme = light ? 'light' : 'dark';
+    themeBtn.textContent = light ? '☾ Dark' : '☀ Light';
+    themeBtn.setAttribute('aria-pressed', String(light));
+  });
+  const smartBtn = document.getElementById('smartToggle');
+  smartBtn.addEventListener('click', () => {
+    const enabled = document.body.classList.toggle('smartboard');
+    smartBtn.setAttribute('aria-pressed', String(enabled));
+    smartBtn.textContent = enabled ? '✓ Smartboard On' : '▣ Smartboard';
+  });
+  function setScale(next) {
+    uiScale = Math.max(0.8, Math.min(1.5, Math.round(next * 10) / 10));
+    html.style.setProperty('--ui-scale', uiScale);
+  }
+  document.getElementById('sizeDown').addEventListener('click', () => setScale(uiScale - 0.1));
+  document.getElementById('sizeUp').addEventListener('click', () => setScale(uiScale + 0.1));
+  const fullBtn = document.getElementById('fullscreenToggle');
+  function syncFullscreen() {
+    const active = !!document.fullscreenElement;
+    fullBtn.textContent = active ? '⛶ Exit Fullscreen' : '⛶ Fullscreen';
+    fullBtn.setAttribute('aria-pressed', String(active));
+  }
+  fullBtn.addEventListener('click', async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch (_) { fullBtn.textContent = 'Fullscreen unavailable'; }
+  });
+  document.addEventListener('fullscreenchange', syncFullscreen);
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault();
+      const active = calcs.querySelector('.calc.active') || calcs.querySelector('.calc');
+      if (active) active.querySelector('.pad .key.go').click();
+    }
+  });
+  const keys = [
+    ['nPr', 'tP', 'fn'], ['nCr', 'tC', 'fn'], ['nHr', 'tH', 'fn'], ['n!', '!', 'fn'],
+    ['(', '(', ''], [')', ')', ''], ['^', '^', ''], ['÷', '/', ''],
+    ['7', '7', ''], ['8', '8', ''], ['9', '9', ''], ['×', '*', ''],
+    ['4', '4', ''], ['5', '5', ''], ['6', '6', ''], ['−', '-', ''],
+    ['1', '1', ''], ['2', '2', ''], ['3', '3', ''], ['+', '+', ''],
+    ['0', '0', ''], [',', ',', ''], ['◀', 'left', ''], ['▶', 'right', ''],
+    ['⌫', 'bk', ''], ['Ans', 'ans', 'fn'],
+    ['Clear', 'cl', 'clr wide'], ['Calculate', 'go', 'go wide']
+  ];
+  const labels = { '/': 'divide', '*': 'multiply', '-': 'subtract', bk: 'backspace', left: 'move cursor left', right: 'move cursor right', tP: 'insert nPr template', tC: 'insert nCr template', tH: 'insert nHr template', '!': 'factorial', ans: 'insert previous answer' };
+
+  function makeCalc(initial) {
+    const root = tpl.content.firstElementChild.cloneNode(true);
+    const q = s => root.querySelector(s);
+    const inp = q('.expr'), msg = q('.msg'), empty = q('.empty'), out = q('.out');
+    let last = null;
+    inp.value = initial || '';
+
+    const pad = q('.pad');
+    keys.forEach(([label, act, cls]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'key ' + cls; b.textContent = label; b.dataset.a = act;
+      b.setAttribute('aria-label', labels[act] || label);
+      pad.appendChild(b);
+    });
+    pad.addEventListener('mousedown', e => e.preventDefault());
+    pad.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      const a = b.dataset.a;
+      if (a === 'go') run();
+      else if (a === 'cl') clearAll();
+      else if (a === 'left' || a === 'right') moveCursor(a === 'left' ? -1 : 1);
+      else if (a === 'bk') back();
+      else if (a === 'ans') { if (last) ins(last.val.d === 1n ? last.str : '(' + last.str + ')'); }
+      else if (a === 'tP') ins('nPr(,)', 4);
+      else if (a === 'tC') ins('nCr(,)', 4);
+      else if (a === 'tH') ins('nHr(,)', 4);
+      else ins(a);
+    });
+
+    function ins(text, caret) {
+      const v = inp.value, s = inp.selectionStart ?? v.length, e = inp.selectionEnd ?? v.length;
+      if (s === e && (text === ',' || text === ')') && v[s] === text) { inp.setSelectionRange(s + 1, s + 1); inp.focus(); return; }
+      inp.value = v.slice(0, s) + text + v.slice(e);
+      const p = s + (caret === undefined ? text.length : caret);
+      inp.setSelectionRange(p, p); inp.focus();
+    }
+    function moveCursor(direction) {
+      const v = inp.value;
+      let s = inp.selectionStart ?? v.length;
+      let e = inp.selectionEnd ?? s;
+      // If text is selected, an arrow collapses the selection to its near edge.
+      if (s !== e) {
+        const p = direction < 0 ? Math.min(s, e) : Math.max(s, e);
+        inp.setSelectionRange(p, p);
+      } else {
+        const p = Math.max(0, Math.min(v.length, s + direction));
+        inp.setSelectionRange(p, p);
+      }
+      inp.focus();
+    }
+
+    function back() {
+      const v = inp.value, s = inp.selectionStart ?? v.length, e = inp.selectionEnd ?? v.length;
+      if (s !== e) { inp.value = v.slice(0, s) + v.slice(e); inp.setSelectionRange(s, s); }
+      else if (s > 0) { inp.value = v.slice(0, s - 1) + v.slice(s); inp.setSelectionRange(s - 1, s - 1); }
+      inp.focus();
+    }
+    function reset(text) { last = null; out.hidden = true; empty.hidden = false; empty.textContent = text; }
+    function clearAll() { inp.value = ''; msg.textContent = ''; reset('No result yet. Enter an expression and press Calculate.'); inp.focus(); }
+
+    function render(src, val, groups) {
+      msg.textContent = '';
+      const str = fmtQ(val), isInt = val.d === 1n;
+      last = { str, val };
+      empty.hidden = true; out.hidden = false;
+      q('.echo').textContent = src.trim() + ' =';
+      const ans = q('.ans'); ans.textContent = str; ans.className = 'ans' + (str.length > 40 ? ' long' : '');
+      q('.kind').textContent = isInt ? 'Integer' : 'Rational number';
+      let extra = '';
+      if (isInt && str.replace('-', '').length > 12) extra = str.replace('-', '').length + ' digits';
+      if (!isInt && bits(val.n) < 2000 && bits(val.d) < 2000) {
+        const neg = val.n < 0n, n = neg ? -val.n : val.n; let rem = n % val.d, fr = '';
+        for (let i = 0; i < 10; i++) { rem *= 10n; fr += (rem / val.d).toString(); rem %= val.d; }
+        extra = 'Decimal (approximate): ' + (neg ? '-' : '') + (n / val.d) + '.' + fr + '…';
+      }
+      q('.extra').textContent = extra; q('.note').textContent = '';
+      const ids = q('.ids'); ids.textContent = '';
+      if (!groups.length) {
+        const p = document.createElement('p'); p.className = 'small';
+        p.textContent = 'This expression has no permutation, combination or factorial, so no P&C identities apply.';
+        ids.appendChild(p);
+      }
+      groups.forEach((g, gi) => {
+        const hit = g.title.startsWith('Your input');
+        const h = document.createElement('div'); h.className = 'grp' + (hit ? ' hit' : ''); h.textContent = g.title; ids.appendChild(h);
+        g.cards.forEach(c => {
+          const d = document.createElement('div'); d.className = 'card' + (hit ? ' hit' : '');
+          const t = document.createElement('h3'); t.textContent = c.name;
+          const f = document.createElement('div'); f.className = 'form'; f.textContent = c.form;
+          const w = document.createElement('p'); w.textContent = c.why;
+          d.append(t, f, w); ids.appendChild(d);
+        });
+      });
+    }
+    function run() {
+      const src = inp.value;
+      try { const { ast, val } = calc(src); render(src, val, buildIdentities(ast)); }
+      catch (e) {
+        const m = e instanceof CalcError ? e.message : 'Could not calculate this expression (it may be too large).';
+        if (!(e instanceof CalcError)) console.error(e);
+        msg.textContent = m; reset('No result. Fix the message shown under the input.');
+      }
+    }
+    q('.copy').addEventListener('click', async () => {
+      if (!last) return;
+      const note = q('.note');
+      try { await navigator.clipboard.writeText(last.str); note.textContent = 'Copied.'; }
+      catch (_) {
+        try { const t = document.createElement('textarea'); t.value = last.str; document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); note.textContent = ok ? 'Copied.' : 'Copy was blocked by the browser.'; }
+        catch (__) { note.textContent = 'Copy was blocked by the browser.'; }
+      }
+    });
+    q('.use').addEventListener('click', () => {
+      if (!last) return;
+      const t = last.val.d === 1n ? last.str : '(' + last.str + ')';
+      if (t.length > LIM.LEN) { q('.note').textContent = 'Result is too long to reuse as input.'; return; }
+      inp.value = t; msg.textContent = ''; inp.focus(); inp.setSelectionRange(t.length, t.length);
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.ctrlKey) { e.preventDefault(); run(); }
+    });
+    q('.close').addEventListener('click', () => { root.remove(); refresh(); });
+    const activate = () => { calcs.querySelectorAll('.calc.active').forEach(c => c.classList.remove('active')); root.classList.add('active'); };
+    root.addEventListener('pointerdown', activate); root.addEventListener('focusin', activate);
+    if (initial) run();
+    return root;
+  }
+
+  function refresh() {
+    const all = calcs.querySelectorAll('.calc');
+    all.forEach((c, i) => { c.querySelector('.ctitle').textContent = 'Calculator ' + (i + 1); });
+    calcs.classList.toggle('single', all.length <= 1);
+    countEl.textContent = all.length + (all.length === 1 ? ' calculator' : ' calculators');
+    if (all.length && !calcs.querySelector('.calc.active')) all[all.length - 1].classList.add('active');
+  }
+  function addCalc(initial) {
+    const c = makeCalc(initial);
+    calcs.appendChild(c); refresh();
+    calcs.querySelectorAll('.calc.active').forEach(x => x.classList.remove('active')); c.classList.add('active');
+    c.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return c;
+  }
+  document.getElementById('add').addEventListener('click', () => addCalc('').querySelector('.expr').focus());
+  addCalc('nPr(10,3) / nCr(10,3)');
+})();
+</script>
+</body>
+</html>
