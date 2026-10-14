@@ -5,10 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>P&amp;C Quick Calculator — JEE Mathematics</title>
 <style>
-:root{--bg:#0b1324;--panel:#111b31;--card:#0d1629;--line:#27385c;--text:#eaf0ff;--muted:#9fb1d1;--acc:#22d3ee;--accd:#04222b;--key:#1a2a49;--err:#ff7b7b;--ok:#6ee7a8;--bar:68px}
+:root{
+  --bg:#0b1324;--panel:#111b31;--card:#0d1629;--line:#27385c;--text:#eaf0ff;--muted:#9fb1d1;
+  --acc:#22d3ee;--accd:#04222b;--key:#1a2a49;--err:#ff7b7b;--ok:#6ee7a8;
+  --ui-scale:1;--bar:calc(68px * var(--ui-scale));--form:#c4f5fc;--chead:#0e1830;--key-active:#27406e;--go-active:#67e8f9
+}
+[data-theme="light"]{
+  --bg:#f0f4fa;--panel:#ffffff;--card:#e8eef8;--line:#c5d0e6;--text:#1a2744;--muted:#5a6b8a;
+  --acc:#0891b2;--accd:#e0f7fa;--key:#dbe4f5;--err:#dc2626;--ok:#059669;
+  --form:#0e7490;--chead:#e8eef8;--key-active:#c5d4f0;--go-active:#22d3ee
+}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--text);font:18px/1.45 system-ui,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font:calc(18px * var(--ui-scale))/1.45 system-ui,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden;transition:background .2s,color .2s}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
 .bar{height:var(--bar);flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--panel)}
 .bar h1{margin:0;font-size:1.35em}
@@ -18,7 +27,7 @@ body{background:var(--bg);color:var(--text);font:18px/1.45 system-ui,"Segoe UI",
   grid-template-columns:repeat(auto-fit,minmax(min(100%,700px),1fr));grid-auto-rows:calc(100vh - var(--bar) - 36px);grid-auto-rows:calc(100dvh - var(--bar) - 36px)}
 .calc{container-type:inline-size;display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border:2px solid var(--line);border-radius:12px;overflow:hidden}
 .calc.active{border-color:var(--acc)}
-.chead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 10px 6px 18px;border-bottom:1px solid var(--line);background:#0e1830}
+.chead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 10px 6px 18px;border-bottom:1px solid var(--line);background:var(--chead)}
 .ctitle{margin:0;font-size:1em;color:var(--acc)}
 .cbody{flex:1;min-height:0;display:grid;grid-template-columns:1fr;overflow-y:auto}
 .panel{padding:16px 18px;min-width:0;min-height:0}
@@ -33,14 +42,14 @@ body{background:var(--bg);color:var(--text);font:18px/1.45 system-ui,"Segoe UI",
 .msg{min-height:1.5em;margin:8px 0;color:var(--err);font-weight:600}
 .hint{color:var(--muted);font-size:.8em;margin:0 0 12px}
 .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.key{min-height:58px;font:600 1.25em system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--key);border:1px solid var(--line);border-radius:8px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;padding:4px}
-.key:active{background:#27406e}
+.key{min-height:calc(58px * var(--ui-scale));font:600 1.25em system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--key);border:1px solid var(--line);border-radius:8px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;padding:4px}
+.key:active{background:var(--key-active)}
 .key:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .key.fn{color:var(--acc)}
 .key.wide{grid-column:span 2}
 .key.go{background:var(--acc);color:var(--accd);border-color:var(--acc);font-size:1.1em}
 .key.clr{color:var(--err);font-size:1.1em}
-.key.go:active{background:#67e8f9}
+.key.go:active{background:var(--go-active)}
 .empty{color:var(--muted);padding:12px 0}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .badge{border:1px solid var(--acc);color:var(--acc);border-radius:20px;padding:2px 12px;font-weight:600;font-size:.9em}
@@ -48,11 +57,11 @@ body{background:var(--bg);color:var(--text);font:18px/1.45 system-ui,"Segoe UI",
 .ans{font:700 40px/1.1 ui-monospace,Consolas,"Courier New",monospace;font-size:clamp(34px,5.5cqw,84px);word-break:break-all;overflow-wrap:anywhere;margin:10px 0}
 .ans.long{font-size:22px;line-height:1.4}
 .small{color:var(--muted);font-size:.9em;word-break:break-all}
-.btn{min-height:50px;padding:6px 18px;font:600 1em system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--key);border:1px solid var(--acc);border-radius:8px;cursor:pointer;touch-action:manipulation}
-.btn:active{background:#27406e}
-.btn.add{background:var(--acc);color:var(--accd);font-size:1.05em;min-height:48px}
-.btn.add:active{background:#67e8f9}
-.btn.close{min-height:44px;min-width:44px;padding:0 12px;border-color:var(--line);color:var(--err);font-size:1.1em}
+.btn{min-height:calc(50px * var(--ui-scale));padding:6px 18px;font:600 1em system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--key);border:1px solid var(--acc);border-radius:8px;cursor:pointer;touch-action:manipulation}
+.btn:active{background:var(--key-active)}
+.btn.add{background:var(--acc);color:var(--accd);font-size:1.05em;min-height:calc(48px * var(--ui-scale))}
+.btn.add:active{background:var(--go-active)}
+.btn.close{min-height:calc(44px * var(--ui-scale));min-width:calc(44px * var(--ui-scale));padding:0 12px;border-color:var(--line);color:var(--err);font-size:1.1em}
 .single .btn.close{display:none}
 h2{font-size:1.05em;margin:20px 0 8px;color:var(--muted);font-weight:600}
 .grp{margin:16px 0 6px;font-weight:700;color:var(--acc)}
@@ -60,11 +69,48 @@ h2{font-size:1.05em;margin:20px 0 8px;color:var(--muted);font-weight:600}
 .card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:6px;padding:10px 14px;margin:8px 0}
 .card.hit{border-left-color:var(--ok)}
 .card h3{margin:0 0 4px;font-size:1em}
-.form{font:1.05em/1.5 ui-monospace,Consolas,"Courier New",monospace;color:#c4f5fc;white-space:pre-wrap;overflow-wrap:anywhere}
+.form{font:1.05em/1.5 ui-monospace,Consolas,"Courier New",monospace;color:var(--form);white-space:pre-wrap;overflow-wrap:anywhere}
 .card p{margin:4px 0 0;color:var(--muted);font-size:.92em}
 [hidden]{display:none!important}
-@media (max-width:959px){.app{display:block;height:auto}.bar{padding:0 12px}.bar .sub,.bar .count{display:none}.calcs{display:block;overflow:visible;padding:12px}.calc{margin-bottom:14px}.cbody{overflow:visible}body{font-size:17px}.expr{font-size:1.25em}.key{min-height:56px}}
-@media (min-width:1600px){body{font-size:22px}.key{min-height:68px}.pad{gap:12px}}
+
+/* Smartboard mode — larger buttons, input, and results for classroom visibility */
+body.smartboard{font-size:calc(22px * var(--ui-scale))}
+body.smartboard .key{min-height:calc(76px * var(--ui-scale));font-size:1.4em;padding:6px}
+body.smartboard .pad{gap:14px}
+body.smartboard .expr{font-size:1.75em;padding:14px 16px}
+body.smartboard .ans{font-size:clamp(44px,7cqw,110px)}
+body.smartboard .ans.long{font-size:28px}
+body.smartboard .btn{min-height:calc(58px * var(--ui-scale));font-size:1.1em}
+body.smartboard .btn.add{min-height:calc(56px * var(--ui-scale))}
+body.smartboard .btn.close{min-height:calc(52px * var(--ui-scale));min-width:calc(52px * var(--ui-scale))}
+body.smartboard .hint{font-size:.9em}
+body.smartboard .badge{font-size:1em;padding:4px 14px}
+body.smartboard .form{font-size:1.15em}
+body.smartboard .card{padding:14px 16px}
+body.smartboard .bar{height:calc(76px * var(--ui-scale));--bar:calc(76px * var(--ui-scale))}
+body.smartboard .chead{padding:10px 12px 10px 20px}
+
+@media (max-width:959px){
+  .app{display:block;height:auto}
+  .bar{padding:0 12px}
+  .bar .sub,.bar .count{display:none}
+  .calcs{display:block;overflow:visible;padding:12px}
+  .calc{margin-bottom:14px}
+  .cbody{overflow:visible}
+  body{font-size:calc(17px * var(--ui-scale))}
+  .expr{font-size:1.25em}
+  .key{min-height:calc(56px * var(--ui-scale))}
+  body.smartboard{font-size:calc(20px * var(--ui-scale))}
+  body.smartboard .key{min-height:calc(68px * var(--ui-scale))}
+  body.smartboard .expr{font-size:1.5em}
+}
+@media (min-width:1600px){
+  body{font-size:calc(22px * var(--ui-scale))}
+  .key{min-height:calc(68px * var(--ui-scale))}
+  .pad{gap:12px}
+  body.smartboard{font-size:calc(26px * var(--ui-scale))}
+  body.smartboard .key{min-height:calc(84px * var(--ui-scale))}
+}
 </style>
 </head>
 <body>
