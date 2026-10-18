@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="iconBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+    <linearGradient id="iconPrimaryGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#818CF8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Card -->
+  <rect x="20" y="20" width="360" height="360" rx="40" fill="url(#iconBgGrad)" stroke="#334155" stroke-width="2"/>
+  
+  <!-- Grid/Tree Permutation Paths -->
+  <g opacity="0.3" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="4 4">
+    <line x1="200" y1="100" x2="130" y2="170" />
+    <line x1="200" y1="100" x2="270" y2="170" />
+    <line x1="130" y1="170" x2="90" y2="230" />
+    <line x1="130" y1="170" x2="170" y2="230" />
+    <line x1="270" y1="170" x2="230" y2="230" />
+    <line x1="270" y1="170" x2="310" y2="230" />
+  </g>
+
+  <!-- Arrangement Nodes -->
+  <!-- Top Node (n) -->
+  <circle cx="200" cy="100" r="16" fill="#38BDF8" />
+  <text x="200" y="105" font-family="system-ui, sans-serif" font-weight="bold" font-size="14" fill="#0F172A" text-anchor="middle">n</text>
+
+  <!-- Level 2 Nodes -->
+  <circle cx="130" cy="170" r="14" fill="#818CF8" />
+  <circle cx="270" cy="170" r="14" fill="#818CF8" />
+
+  <!-- Level 3 Nodes (r) -->
+  <circle cx="90" cy="230" r="12" fill="#C084FC" />
+  <circle cx="170" cy="230" r="12" fill="#C084FC" />
+  <circle cx="230" cy="230" r="12" fill="#C084FC" />
+  <circle cx="310" cy="230" r="12" fill="#C084FC" />
+
+  <!-- Formula Notation Badge -->
+  <rect x="110" y="275" width="180" height="42" rx="12" fill="#1E293B" stroke="url(#iconPrimaryGrad)" stroke-width="2" />
+  <text x="200" y="302" font-family="'Courier New', monospace" font-weight="bold" font-size="20" fill="url(#iconPrimaryGrad)" text-anchor="middle">
+    nPk • nCr
+  </text>
+
+  <!-- App Title -->
+  <text x="200" y="352" font-family="system-ui, sans-serif" font-weight="600" font-size="13" fill="#94A3B8" text-anchor="middle" letter-spacing="1.5">
+    PERM &amp; COMB CALC
+  </text>
+</svg>
