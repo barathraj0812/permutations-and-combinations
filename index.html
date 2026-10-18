@@ -19,12 +19,12 @@
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--text);font:calc(18px * var(--ui-scale))/1.45 system-ui,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden;transition:background .2s,color .2s}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
-.bar{height:var(--bar);flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+.bar{min-height:var(--bar);flex:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
 .bar h1{margin:0;font-size:1.35em}
 .bar .sub{color:var(--muted);margin-left:12px;font-size:.8em;font-weight:400}
 .bar .count{color:var(--muted);font-size:.85em;margin-right:12px}
 .calcs{flex:1;min-height:0;overflow-y:auto;padding:16px 20px 20px;display:grid;gap:16px;
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,700px),1fr));grid-auto-rows:calc(100vh - var(--bar) - 36px);grid-auto-rows:calc(100dvh - var(--bar) - 36px)}
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,700px),1fr));grid-auto-rows:calc(100vh - var(--bar-h,var(--bar)) - 36px);grid-auto-rows:calc(100dvh - var(--bar-h,var(--bar)) - 36px)}
 .calc{container-type:inline-size;display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border:2px solid var(--line);border-radius:12px;overflow:hidden}
 .calc.active{border-color:var(--acc)}
 .chead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 10px 6px 18px;border-bottom:1px solid var(--line);background:var(--chead)}
@@ -87,12 +87,12 @@ body.smartboard .hint{font-size:.9em}
 body.smartboard .badge{font-size:1em;padding:4px 14px}
 body.smartboard .form{font-size:1.15em}
 body.smartboard .card{padding:14px 16px}
-body.smartboard .bar{height:calc(76px * var(--ui-scale));--bar:calc(76px * var(--ui-scale))}
+body.smartboard .bar{min-height:calc(76px * var(--ui-scale));--bar:calc(76px * var(--ui-scale))}
 body.smartboard .chead{padding:10px 12px 10px 20px}
 
 @media (max-width:959px){
   .app{display:block;height:auto}
-  .bar{padding:0 12px}
+  .bar{padding:8px 12px}
   .bar .sub,.bar .count{display:none}
   .calcs{display:block;overflow:visible;padding:12px}
   .calc{margin-bottom:14px}
@@ -736,6 +736,15 @@ function buildIdentities(ast) {
   }
   document.getElementById('add').addEventListener('click', () => addCalc('').querySelector('.expr').focus());
   addCalc('nPr(10,3) / nCr(10,3)');
+})();
+</script>
+<script>
+(function(){
+  var bar=document.querySelector('.bar');
+  function sync(){document.documentElement.style.setProperty('--bar-h',bar.offsetHeight+'px');}
+  sync();
+  if(window.ResizeObserver)new ResizeObserver(sync).observe(bar);
+  window.addEventListener('resize',sync);
 })();
 </script>
 </body>
