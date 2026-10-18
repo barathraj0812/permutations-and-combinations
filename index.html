@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>P&amp;C Quick Calculator — JEE Mathematics</title>
+<meta name="description" content="Permutations, combinations and factorials for JEE Mathematics">
+<link rel="icon" type="image/svg+xml" href="/assets/pc-calculator-logo.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="P&amp;C Quick Calculator — JEE Mathematics">
+<meta property="og:description" content="Permutations, combinations and factorials for JEE Mathematics">
+<meta property="og:image" content="/assets/pc-calculator-banner.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/pc-calculator-banner.svg">
 <style>
 :root{
   --bg:#0b1324;--panel:#111b31;--card:#0d1629;--line:#27385c;--text:#eaf0ff;--muted:#9fb1d1;
@@ -20,7 +28,8 @@ html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--text);font:calc(18px * var(--ui-scale))/1.45 system-ui,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden;transition:background .2s,color .2s}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
 .bar{min-height:var(--bar);flex:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
-.bar h1{margin:0;font-size:1.35em}
+.bar h1{margin:0;font-size:1.35em;display:flex;align-items:center;flex-wrap:wrap}
+.bar .logo{width:calc(44px * var(--ui-scale));height:calc(44px * var(--ui-scale));margin-right:12px;flex:none}
 .bar .sub{color:var(--muted);margin-left:12px;font-size:.8em;font-weight:400}
 .bar .count{color:var(--muted);font-size:.85em;margin-right:12px}
 .calcs{flex:1;min-height:0;overflow-y:auto;padding:16px 20px 20px;display:grid;gap:16px;
@@ -116,7 +125,7 @@ body.smartboard .chead{padding:10px 12px 10px 20px}
 <body>
 <div class="app">
   <header class="bar">
-    <h1>P&amp;C Quick Calculator<span class="sub">Permutations, combinations and factorials for JEE Mathematics</span></h1>
+    <h1><img class="logo" src="/assets/pc-calculator-logo.svg" alt="P&amp;C Calculator logo" width="44" height="44">P&amp;C Quick Calculator<span class="sub">Permutations, combinations and factorials for JEE Mathematics</span></h1>
     <div class="row toolbar">
       <span class="count" id="count"></span>
       <button class="btn tool" id="themeToggle" type="button" aria-pressed="false">☀ Light</button>
