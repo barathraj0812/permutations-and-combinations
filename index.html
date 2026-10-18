@@ -29,7 +29,7 @@ body{background:var(--bg);color:var(--text);font:calc(18px * var(--ui-scale))/1.
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
 .bar{min-height:var(--bar);flex:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
 .bar h1{margin:0;font-size:1.35em;display:flex;align-items:center;flex-wrap:wrap}
-.bar .logo{width:calc(44px * var(--ui-scale));height:calc(44px * var(--ui-scale));margin-right:12px;flex:none}
+.bar .banner{display:block;height:calc(56px * var(--ui-scale));width:auto;aspect-ratio:500/130;margin-right:12px;flex:none;background:#0f172a;border:1px solid #334155;border-radius:12px}
 .bar .sub{color:var(--muted);margin-left:12px;font-size:.8em;font-weight:400}
 .bar .count{color:var(--muted);font-size:.85em;margin-right:12px}
 .calcs{flex:1;min-height:0;overflow-y:auto;padding:16px 20px 20px;display:grid;gap:16px;
@@ -100,6 +100,7 @@ body.smartboard .bar{min-height:calc(76px * var(--ui-scale));--bar:calc(76px * v
 body.smartboard .chead{padding:10px 12px 10px 20px}
 
 @media (max-width:959px){
+  .bar .banner{height:calc(46px * var(--ui-scale))}
   .app{display:block;height:auto}
   .bar{padding:8px 12px}
   .bar .sub,.bar .count{display:none}
@@ -125,7 +126,7 @@ body.smartboard .chead{padding:10px 12px 10px 20px}
 <body>
 <div class="app">
   <header class="bar">
-    <h1><img class="logo" src="/assets/pc-calculator-logo.svg" alt="P&amp;C Calculator logo" width="44" height="44">P&amp;C Quick Calculator<span class="sub">Permutations, combinations and factorials for JEE Mathematics</span></h1>
+    <h1><img class="banner" src="/assets/pc-calculator-banner.svg" alt="P&amp;C Quick Calculator" width="215" height="56"><span class="sub">Permutations, combinations and factorials for JEE Mathematics</span></h1>
     <div class="row toolbar">
       <span class="count" id="count"></span>
       <button class="btn tool" id="themeToggle" type="button" aria-pressed="false">☀ Light</button>
